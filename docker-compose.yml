@@ -1,0 +1,60 @@
+version: '3.8'
+
+services:
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      target: runner  # Explicitly use runner stage
+    ports:
+      - "3000:3000"
+    environment:
+      - NODE_ENV=${NODE_ENV}
+      - PORT=${PORT}
+      - JWT_SECRET=${JWT_SECRET}
+      - ENCRYPTION_KEY=${ENCRYPTION_KEY}
+      - MONGO_URL=${MONGO_URL}
+      - REDIS_URL=${REDIS_URL}
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:3000/health"]
+      interval: 30s
+      timeout: 3s
+      retries: 3
+    depends_on:
+      - mongo
+
+  mongo:
+    image: mongo:6
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: ${MONGO_INITDB_ROOT_USERNAME}
+      MONGO_INITDB_ROOT_PASSWORD: ${MONGO_INITDB_ROOT_PASSWORD}
+      MONGO_URL: ${MONGO_URL}
+    volumes:
+      - mongo_data:/data/db
+    healthcheck:
+      test: ["CMD", "mongosh", "--eval", "db.adminCommand('ping')"]
+      interval: 300s
+      timeout: 30s
+      retries: 3
+
+
+  redis:
+    image: redis:7-alpine
+    command: redis-server --requirepass ${REDIS_PASSWORD} --appendonly ${REDIS_AOF_ENABLED} --save "${REDIS_RDB_POLICY}"
+    environment:
+      - REDIS_PASSWORD=${REDIS_PASSWORD}
+      - REDIS_URL=${REDIS_URL}
+      - REDISHOST=${REDISHOST}
+      - REDISPASSWORD=${REDISPASSWORD}
+      - REDISPORT=${REDISPORT}
+      - REDISUSER=${REDISUSER}
+    volumes:
+      - redis_data:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "-a", "${REDIS_PASSWORD}", "ping"]
+      interval: 300s
+      timeout: 30s
+      retries: 3
+
+volumes:
+  mongo_data:

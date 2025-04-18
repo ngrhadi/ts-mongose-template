@@ -1,0 +1,20 @@
+# Use the same base image as production
+FROM node:18-alpine AS development
+WORKDIR /app
+
+# Install dependencies
+COPY package.json package-lock.json ./
+RUN npm install
+
+# Copy source code
+COPY . .
+
+# Set environment variables for development
+ENV NODE_ENV=development
+ENV PORT=3000
+
+# Expose the development port
+EXPOSE 3000
+
+# Run the application in development mode
+CMD ["npm", "run", "dev"]
