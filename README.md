@@ -2,6 +2,27 @@
 
 #### Deployment
 
+**How To Deploy on Railway**
+1. Ensure you have the following services set up:
+   - **MongoDB Atlas**: Obtain the connection URL.
+   - **Redis**: Obtain the connection URL.
+
+2. Configure your MongoDB Atlas network settings:
+   - Add Railway's IP addresses to the network access list, or enable access from all sources (not recommended for production).
+
+3. Deploy the application:
+   - Go to [Railway](https://railway.app/) and create a new project.
+   - Connect the project to your GitHub repository.
+   - Add the required environment variables based on the `.env.example` file:
+     - MongoDB connection URL
+     - Redis connection URL
+     - Any other variables specified in your code.
+
+4. Deploy the project:
+   - Once the environment variables are configured, deploy the project directly from Railway.
+
+> **Note:** Ensure that your MongoDB Atlas and Redis services are properly configured to allow read and write access from Railway.
+
 The application is deployed at:
 [Here](https://ts-mongose-template-production.up.railway.app/)
 
