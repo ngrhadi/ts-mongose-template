@@ -1,24 +1,29 @@
 import { Request, Response } from 'express';
-import { Task } from '../../entities/task/Task';
+import { Task, validateTask } from '../../entities/task/Task';
 import { sendSuccess, sendError, sendFail } from '../../utils/responseHandler';
 import { logError } from '../../utils/logger';
 
 // Create a new task
 export async function createTask(req: Request, res: Response): Promise<void> {
     try {
-        const { title, description, status } = req.body;
-        const taskStatus = status ?? 'pending';
-
-        // Check for missing fields
-        const missingFields = [];
-        if (!title) missingFields.push({ path: 'title', message: 'title is required' });
-        if (!description) missingFields.push({ path: 'description', message: 'description is required' });
-
-        if (missingFields.length > 0) {
-            return sendFail(res, 'Validation error', missingFields, 400);
+        const validationResult = validateTask(req.body);
+        if (!validationResult.success) {
+            const apiErrors = validationResult.error.errors.map((error) => ({
+                message: error.message,
+                path: Array.isArray(error.path)
+                    ? error.path.join('.')
+                    : error.path,
+            }));
+            return sendFail(res, 'Validation error', apiErrors, 400);
         }
 
-        const userId = typeof req.user === 'object' && 'id' in req.user ? req.user.id : null;
+        const { title, description, status } = validationResult.data;
+        const taskStatus = status ?? 'pending';
+
+        const userId =
+            typeof req.user === 'object' && 'id' in req.user
+                ? req.user.id
+                : null;
 
         if (!userId) {
             return sendFail(res, 'User not authenticated', undefined, 401);
@@ -66,8 +71,19 @@ export async function getTaskById(req: Request, res: Response): Promise<void> {
 // Update a task by ID
 export async function updateTask(req: Request, res: Response): Promise<void> {
     try {
+        const validationResult = validateTask(req.body);
+        if (!validationResult.success) {
+            const apiErrors = validationResult.error.errors.map((error) => ({
+                message: error.message,
+                path: Array.isArray(error.path)
+                    ? error.path.join('.')
+                    : error.path,
+            }));
+            return sendFail(res, 'Validation error', apiErrors, 400);
+        }
+
         const { id } = req.params;
-        const updates = req.body;
+        const updates = validationResult.data;
 
         const userId =
             typeof req.user === 'object' && 'id' in req.user

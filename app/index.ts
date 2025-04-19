@@ -20,6 +20,9 @@ const PORT = process.env.PORT || 8000;
 // Example: Using winston logger for application logs
 logger.info('Application starting...');
 
+// Middleware to trust proxy headers
+app.set('trust proxy', 1);
+
 // Middleware to parse JSON
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));

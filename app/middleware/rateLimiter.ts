@@ -7,11 +7,12 @@ import rateLimit from 'express-rate-limit';
  * @returns Express middleware for rate limiting.
  */
 export const createBasicRateLimiter = (maxRequests: number, time: number) => {
-  return rateLimit({
-    max: maxRequests,
-    windowMs: time,
-    message: 'Too many requests, please try again later',
-    standardHeaders: true,
-    legacyHeaders: false,
-  });
+    return rateLimit({
+        max: maxRequests,
+        windowMs: time,
+        message: 'Too many requests, please try again later',
+        standardHeaders: true,
+        legacyHeaders: false,
+        skipFailedRequests: true,
+    });
 };

@@ -43,17 +43,34 @@ describe('POST /api/v1/auth/register', () => {
     });
 
     it('should return validation error for missing fields', async () => {
-        const res = await request(app).post('/api/v1/auth/register').send({ email: testUser.email });
+        const res = await request(app)
+            .post('/api/v1/auth/register')
+            .send({ email: testUser.email });
 
         assert.equal(res.status, 400);
         assert.equal(res.body.message, 'Validation error');
 
-        // Ensure errors is an array
-        assert.ok(Array.isArray(res.body.errors));
+        // Ensure errors is an array or handle unexpected structure
+        assert.ok(
+            Array.isArray(res.body.errors),
+            'Expected res.body.errors to be an array'
+        );
 
         // Validate the errors array
-        assert.ok(res.body.errors.some((e: any) => e.path === 'username' && e.message === 'Username is required'));
-        assert.ok(res.body.errors.some((e: any) => e.path === 'password' && e.message === 'Password is required'));
+        assert.ok(
+            res.body.errors.some(
+                (e: any) =>
+                    e.path === 'username' &&
+                    e.message === 'Validation error `username` is required'
+            )
+        );
+        assert.ok(
+            res.body.errors.some(
+                (e: any) =>
+                    e.path === 'password' &&
+                    e.message === 'Validation error `password` is required'
+            )
+        );
     });
 
     it('should return error for duplicate email', async () => {

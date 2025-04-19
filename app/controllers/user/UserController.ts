@@ -1,42 +1,24 @@
 import { Request, Response } from 'express';
 import jwt from 'jsonwebtoken';
 import bcrypt from 'bcryptjs';
-import { validationResult, check } from 'express-validator';
 import User from '../../entities/user/User';
 import { sendSuccess, sendError, sendFail } from '../../utils/responseHandler';
 import { logger, logError } from '../../utils/logger';
 import { cacheToken, invalidateToken } from '../../middleware/authorization';
+import { validateUser } from '../../entities/user/User';
 
 export async function register(req: Request, res: Response): Promise<void> {
     try {
-        const errors = validationResult(req);
-        if (!errors.isEmpty()) {
-            const apiErrors = errors.array().map(err => ({ path: (err as any).path || (err as any).param, message: err.msg }));
-            return sendFail(res, `Validation error`, apiErrors, 400);
+        const validationResult = validateUser(req.body);
+        if (!validationResult.success) {
+            const apiErrors = validationResult.error.errors.map((err) => ({
+                path: err.path.join('.'),
+                message: err.message,
+            }));
+            return sendFail(res, 'Validation error', apiErrors, 400);
         }
 
         const { username, email, password } = req.body;
-
-        // Check for missing fields
-        const missingFields = [];
-        if (!username) missingFields.push({ path: 'username', message: 'Username is required' });
-        if (!email) missingFields.push({ path: 'email', message: 'Email is required' });
-        if (!password) missingFields.push({ path: 'password', message: 'Password is required' });
-
-        if (missingFields.length > 0) {
-            return sendFail(res, 'Validation error', missingFields, 400);
-        }
-
-        // Validate email format
-        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-        if (!emailRegex.test(email)) {
-            return sendFail(res, 'Validation error', [{ path: 'email', message: 'Invalid email format' }], 400);
-        }
-
-        // Validate password strength
-        if (password.length < 6) {
-            return sendFail(res, 'Validation error', [{ path: 'password', message: 'Password must be at least 6 characters long' }], 400);
-        }
 
         // Check for duplicate email or username
         const existingUser = await User.findOne({
