@@ -11,10 +11,10 @@ COPY . .
 
 # Set environment variables for development
 ENV NODE_ENV=development
-ENV PORT=3000
+ENV PORT=8000
 
 # Expose the development port
-EXPOSE 3000
+EXPOSE 8000
 
 # Run the application in development mode
 CMD ["npm", "run", "dev"]

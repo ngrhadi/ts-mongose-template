@@ -13,6 +13,12 @@ export const connectToMongoDB = async () => {
         logger.info('MongoDB connected');
     } catch (error) {
         logError(error as Error, 'MongoDB connection error');
+        logger.error(
+            `Connection details: MONGO_URL=${process.env.MONGO_URL?.replace(
+                /\/\/.*:.*@/,
+                '//<credentials>@'
+            )}, MONGOUSER=${process.env.MONGOUSER}`
+        );
         process.exit(1);
     }
 };

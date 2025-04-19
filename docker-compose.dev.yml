@@ -4,8 +4,7 @@ services:
   app:
     build:
       context: .
-      dockerfile: Dockerfile
-      target: runner  # Explicitly use runner stage
+      dockerfile: Dockerfile.dev
     ports:
       - "8000:8000"
     environment:
@@ -13,10 +12,30 @@ services:
       - PORT=${PORT}
       - JWT_SECRET=${JWT_SECRET}
       - ENCRYPTION_KEY=${ENCRYPTION_KEY}
-      - MONGO_URL=${MONGO_URL}
-      - REDIS_URL=${REDIS_URL}
-    healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:8000/api/v1/health"]
-      interval: 30s
-      timeout: 10s
-      retries: 3
+      - REDIS_URL=redis://redis:6379
+    env_file:
+      - .env.development
+    networks:
+      - app-network
+
+  redis:
+    image: redis:latest
+    ports:
+      - "6379:6379"
+    command: ["redis-server", "--appendonly", "yes"]
+    networks:
+      - app-network
+
+  mongo:
+    image: mongo:latest
+    ports:
+      - "27017:27017"
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: mongoadmin
+      MONGO_INITDB_ROOT_PASSWORD: password
+    networks:
+      - app-network
+
+networks:
+  app-network:
+    driver: bridge
