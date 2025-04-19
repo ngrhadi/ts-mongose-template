@@ -26,14 +26,10 @@ COPY --from=builder --chown=appuser:appgroup /app/node_modules ./node_modules
 
 # Set environment variables for production
 ENV NODE_ENV=production
-ENV PORT=3000
+ENV PORT=8000
 
 # Switch to non-root user
 USER appuser
 
-# Health check
-HEALTHCHECK --interval=30s --timeout=3s \
-    CMD curl -f http://localhost:3000/health || exit 1
-
-EXPOSE 3000
+EXPOSE 8000
 CMD ["node", "dist/index.js"]

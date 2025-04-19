@@ -31,7 +31,21 @@ connectToMongoDB().catch((error) =>
 
 // Redis Client Setup
 const REDIS_URL = process.env.REDIS_URL || 'redis://127.0.0.1:6379';
-const redisClient = createClient({ url: REDIS_URL });
+const redisClient = createClient({
+    url: REDIS_URL,
+    socket: {
+        reconnectStrategy: (retries) => {
+            if (retries > 5) {
+                logError(
+                    new Error(`Retries: ${retries}`),
+                    'Too many retries, closing Redis'
+                );
+                return new Error('Redis connection failed');
+            }
+            return Math.min(retries * 100, 5000);
+        },
+    },
+});
 
 redisClient.on('connect', () => {
     logger.info('Connected to Redis');
