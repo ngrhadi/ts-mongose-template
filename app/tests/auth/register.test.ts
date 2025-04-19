@@ -2,8 +2,8 @@ import { strict as assert } from 'assert';
 import { describe, it, before, after, afterEach } from 'mocha';
 import request from 'supertest';
 
-import app from '../../app/index';
-import User from '../../app/entities/user/User';
+import app from '../../index';
+import User from '../../entities/user/User';
 import { setupTestDB, teardownTestDB, clearDB } from '../test-helper';
 
 describe('POST /api/v1/auth/register', () => {

@@ -3,8 +3,8 @@ import { describe, it, before, after, afterEach } from 'mocha';
 import request from 'supertest';
 import jwt from 'jsonwebtoken';
 
-import app from '../../app/index';
-import {Task} from '../../app/entities/task/Task';
+import app from '../../index';
+import {Task} from '../../entities/task/Task';
 import { setupTestDB, teardownTestDB, clearDB } from '../test-helper';
 
 describe('Task API', () => {
