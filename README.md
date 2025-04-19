@@ -21,8 +21,14 @@ To test the health check endpoint, visit:
    ```bash
    npm run dev
    ```
+6. Alternatively, you can use Docker Compose for development, make sure `.env.development` exist on your root directory:
+   ```bash
+   docker-compose -f docker-compose.dev.yml up --build
+   ```
 
 > **Note:** Ensure that your `.env` file is properly configured to avoid runtime issues.
+
+
 
 #### Testing
 
