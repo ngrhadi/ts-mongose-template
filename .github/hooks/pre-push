@@ -1,0 +1,10 @@
+protected_branch="master"
+current_branch=$(git rev-parse --abbrev-ref HEAD)
+
+if [ "$current_branch" = "$protected_branch" ]; then
+  echo -e "\033[1;31mERROR: Direct pushes to '$protected_branch' are forbidden!\033[0m"
+  echo -e "Use a pull request instead."
+  exit 1  # Reject push
+fi
+
+exit 0
