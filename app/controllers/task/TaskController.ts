@@ -45,7 +45,16 @@ export async function createTask(req: Request, res: Response): Promise<void> {
 // Get all tasks
 export async function getTasks(req: Request, res: Response): Promise<void> {
     try {
-        const tasks = await Task.find().populate('user');
+        const userId =
+            typeof req.user === 'object' && 'id' in req.user
+                ? req.user.id
+                : null;
+
+        if (!userId) {
+            return sendFail(res, 'User not authenticated', undefined, 401);
+        }
+
+        const tasks = await Task.find({ user: userId }).populate('user');
         sendSuccess(res, 'Tasks retrieved successfully', tasks, 200);
     } catch (error) {
         logError(error as Error, 'Error retrieving tasks');
